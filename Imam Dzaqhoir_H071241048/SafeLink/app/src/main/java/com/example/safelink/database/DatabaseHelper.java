@@ -1,0 +1,40 @@
+package com.example.safelink.database;
+
+import android.content.Context;
+import net.zetetic.database.sqlcipher.SQLiteDatabase;
+import net.zetetic.database.sqlcipher.SQLiteOpenHelper;
+
+public class DatabaseHelper extends SQLiteOpenHelper {
+
+    public static final int DB_VERSION = 5; // Bumped to 5
+    public static final String DB_PASSWORD = "safelink_secret_key_2026";
+
+    public DatabaseHelper(Context context) {
+        super(context, DatabaseContract.DB_NAME, DB_PASSWORD, null, DB_VERSION, 0, null, null, false);
+    }
+
+    @Override
+    public void onCreate(SQLiteDatabase db) {
+        db.execSQL(DatabaseContract.HistoryEntry.CREATE_TABLE);
+        db.execSQL(DatabaseContract.BookmarkEntry.CREATE_TABLE);
+        db.execSQL(DatabaseContract.TrustedDomainEntry.CREATE_TABLE);
+        db.execSQL(DatabaseContract.BlacklistEntry.CREATE_TABLE);
+    }
+
+    @Override
+    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        if (oldVersion < 2) {
+            db.execSQL(DatabaseContract.BookmarkEntry.CREATE_TABLE);
+        }
+        if (oldVersion < 3) {
+            db.execSQL(DatabaseContract.TrustedDomainEntry.CREATE_TABLE);
+        }
+        if (oldVersion < 4) {
+            db.execSQL(DatabaseContract.BlacklistEntry.CREATE_TABLE);
+        }
+        if (oldVersion < 5) {
+            db.execSQL("ALTER TABLE " + DatabaseContract.HistoryEntry.TABLE_NAME + " ADD COLUMN " + DatabaseContract.HistoryEntry.COL_API_RESPONSE + " TEXT");
+            db.execSQL("ALTER TABLE " + DatabaseContract.BookmarkEntry.TABLE_NAME + " ADD COLUMN " + DatabaseContract.BookmarkEntry.COL_API_RESPONSE + " TEXT");
+        }
+    }
+}
